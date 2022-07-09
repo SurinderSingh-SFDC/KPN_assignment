@@ -4,8 +4,8 @@ import getProducts from '@salesforce/apex/AvailableProductsController.getProduct
 import createOrderItems from '@salesforce/apex/AvailableProductsController.createOrderItems';
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import ORDER_STATUS from "@salesforce/schema/Order.Status";
-//import { publish,MessageContext } from 'lightning/messageService';
-//import SAMPLEMC from "@salesforce/messageChannel/orderProductsMessageChannel__c"; 
+import {  APPLICATION_SCOPE,publish,MessageContext } from 'lightning/messageService';
+import SAMPLEMC from "@salesforce/messageChannel/orderProductsMessageChannel__c"; 
 
 
 const fields = [ORDER_STATUS];
@@ -19,6 +19,7 @@ export default class GetDataDisplayData extends LightningElement {
     @track sortBy;
     @track sortDirection;
     @api status='';
+    @api orderitems;
    
     productsColumns = [
         { label: 'Product Name', fieldName: 'Name',sortable: "true" },
@@ -52,6 +53,9 @@ export default class GetDataDisplayData extends LightningElement {
                 }
             }
 
+            @wire(MessageContext)
+               messageContext;
+
 addSelectedProducts(){        
         if(this.status=='Activated'){
             const event = new ShowToastEvent({
@@ -73,16 +77,14 @@ addSelectedProducts(){
         }          
         createOrderItems({  productIds:selectedIdsArray,
                                orderId:this.recordId })
-                .then((result) => {                   
-                    this.template.querySelector('lightning-datatable').selectedRows=[];
-                   location.reload();
+                .then((result) => { 
+                    this.orderitems=result;                    
+                    this.template.querySelector('lightning-datatable').selectedRows=[];                   
                    this.isLoading=false; 
-                 /*  const message = {
-                    messageToSend: 'Published Text' 
-                    
+                  const message = {
+                orderItems:  this.orderitems                     
                 }; 
-                publish(this.MessageContext, SAMPLEMC, message);*/
-                                      
+                publish(this.messageContext, SAMPLEMC, message);                                      
                     this.showToast('Success', 'Product is added to the Order successfully!', 'Success', 'dismissable');                   
                 })
                 .catch((error) => {

@@ -5,8 +5,8 @@ import ORDER_OBJECT from "@salesforce/schema/Order";
 import ID_FIELD from "@salesforce/schema/Order.Id";
 import STATUS_FIELD from "@salesforce/schema/Order.Status";
 import { updateRecord } from "lightning/uiRecordApi";
-//import { MessageContext, subscribe } from 'lightning/messageService';
-//import SAMPLEMC from "@salesforce/messageChannel/orderProductsMessageChannel__c"; 
+import { MessageContext, subscribe } from 'lightning/messageService';
+import SAMPLEMC from "@salesforce/messageChannel/orderProductsMessageChannel__c"; 
 
 export default class OrderDetails extends LightningElement {
     @api recordId;
@@ -26,6 +26,7 @@ export default class OrderDetails extends LightningElement {
         recordId: '$recordId' })
         wireRecordList({data,error}){
             if(data){
+               
                 this.records = data;
                 this.error = undefined;
                 this.dataNotFound = '';
@@ -72,7 +73,7 @@ export default class OrderDetails extends LightningElement {
              }
 
 
-           /*  @wire(MessageContext)
+             @wire(MessageContext)
                messageContext;
                subscription =null;
                connectedCallback(){
@@ -82,9 +83,10 @@ export default class OrderDetails extends LightningElement {
                subscribeMC(){
                  this.subscription=subscribe(this.messageContext,SAMPLEMC,(message)=>{
                     console.log('subscribed message '+message);
-                    this.messageReceived = message.messageToSend;
+                    this.records = message.orderItems;
+                    
                  })
-               }*/
+               }
              
 
 
